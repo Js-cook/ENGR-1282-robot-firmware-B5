@@ -19,7 +19,7 @@ FEHMotor right_motor(FEHMotor::Motor0, 9.0);
 FEHMotor left_motor(FEHMotor::Motor2, 9.0);
 
 // Analog inputs
-AnalogInputPin cds_cell(FEHIO::P0_0);
+AnalogInputPin cds_cell(FEHIO::P1_0);
 
 // Digital inputs
 
@@ -93,6 +93,8 @@ void turn(float angle, int direction){
         right_motor.SetPercent(-50.);
         left_motor.SetPercent(50.);
     }
+
+    resetMotorCounts();
 
     float turn_radius_radians = deg_to_rads(angle);
     // derived from arc length formula double check this
