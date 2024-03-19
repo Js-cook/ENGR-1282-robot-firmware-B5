@@ -78,31 +78,6 @@ void stop_motors(){
 }
 
 /*
-    Sets the proper motor speed to enable turning for the specified angle.  
-    PARAMS:
-        float angle - angle of turn in degrees 
-        int direction - direction of turn; left corresponds to direction = 0, right corresponds to direction = 1
-    RETURN: N/A
-*/
-void turn(float angle, int direction){
-    if(direction == 0){
-        right_motor.SetPercent(50.);
-        left_motor.SetPercent(-50.);
-    }
-    else {
-        right_motor.SetPercent(-50.);
-        left_motor.SetPercent(50.);
-    }
-
-    resetMotorCounts();
-
-    float turn_radius_radians = deg_to_rads(angle);
-    // derived from arc length formula double check this
-    while(calculate_distance(right_encoder.Counts()) <= (RADIUS_OF_TURN * turn_radius_radians)){}
-    stop_motors();
-}
-
-/*
     Resets the counts for both the left and right motors. Another helper function similar to stop_motors()
     PARAMS: N/A
     RETURN: N/A
@@ -113,6 +88,33 @@ void resetMotorCounts(){
 }
 
 /*
+    Sets the proper motor speed to enable turning for the specified angle.  
+    PARAMS:
+        float angle - angle of turn in degrees 
+        int direction - direction of turn; left corresponds to direction = 0, right corresponds to direction = 1
+    RETURN: N/A
+*/
+void turn(float angle, int direction){
+    if(direction == 0){
+        right_motor.SetPercent(40.);
+        left_motor.SetPercent(-40.);
+    }
+    else {
+        right_motor.SetPercent(-40.);
+        left_motor.SetPercent(40.);
+    }
+
+    resetMotorCounts();
+
+    float turn_radius_radians = deg_to_rads(angle);
+    // derived from arc length formula double check this
+    while(calculate_distance(right_encoder.Counts()) <= (RADIUS_OF_TURN * turn_radius_radians)){}
+    stop_motors();
+    Sleep(0.5);
+}
+
+
+/*
     Sets the proper motor speed to move forward or in reverse depending on the value of direction.
     PARAMS:
         float distance - total distance of motion in inches
@@ -120,57 +122,135 @@ void resetMotorCounts(){
     RETURN: N/A
 */
 void move(float distance, int direction=1){
-    right_motor.SetPercent(50. * direction);
-    left_motor.SetPercent(50. * direction);
+    right_motor.SetPercent(40. * direction);
+    left_motor.SetPercent(40. * direction);
 
     resetMotorCounts();
 
     // Ideally motor counts should be equal but this might have to be adjusted in the future
-    while(calculate_distance(right_encoder.Counts()) <= distance){}
+    // int prevCounts = -1;
+    while(calculate_distance(right_encoder.Counts()) <= distance && calculate_distance(left_encoder.Counts()) <= distance){}
     stop_motors();
+    Sleep(0.5);
+}
+
+void move_failsafe(float distance, float failsafe_duration, int direction=1){
+    right_motor.SetPercent(40. * direction);
+    left_motor.SetPercent(40. * direction);
+
+    resetMotorCounts();
+
+    // Ideally motor counts should be equal but this might have to be adjusted in the future
+    // int prevCounts = -1;
+    // int sameCounter = 0;
+    float time = TimeNow();
+    while((calculate_distance(right_encoder.Counts()) <= distance && calculate_distance(left_encoder.Counts()) <= distance) && TimeNow() < time + failsafe_duration){
+
+        // if(prevCounts == right_encoder.Counts()){
+        //     LCD.WriteLine("Failsafe");
+        //     sameCounter++;
+        //     if(sameCounter > 10){
+        //         break;
+        //     }
+        // }
+
+        // if(right_encoder.Counts() % 5 == 0 && right_encoder.Counts() != 0){
+        //     prevCounts = right_encoder.Counts();
+        // }
+    }
+    stop_motors();
+    Sleep(0.5);
+}
+
+/*
+    Modified move() to stop when ticket booth light is reached.
+    PARAMS:
+        int direction - direction of motion, forward by default, but reverse if -1 is specified for direction
+    RETURN: N/A
+*/
+void move_to_light(int direction=1){
+    right_motor.SetPercent(40. * direction);
+    left_motor.SetPercent(40. * direction);
+
+    resetMotorCounts();
+
+    while(read_cds_sensor() > 2.2){}
+    stop_motors();
+    Sleep(0.5);
+}
+
+/*
+    Reads the color of the ticket booth light and displays the color to the LCD screen.
+    PARAMS: N/A
+    RETURN:
+        light_color - int value representing the color of the light, 1 corresponds to red, 2 corresponds to blue
+*/
+int read_light_color(){
+    int light_color;
+    float voltage;
+    float time = TimeNow();
+    while(TimeNow() < time + 1){
+        voltage = read_cds_sensor();
+    }
+
+    LCD.Clear();
+
+    time = TimeNow();
+    if(voltage > 1.35){
+        // color is blue
+        LCD.WriteLine("Blue");
+        LCD.SetFontColor(BLUE);
+        LCD.FillRectangle(0, 0, 319, 239);
+        while(TimeNow() < time + 0.5){}
+        light_color = 2;
+    }
+    else {
+        // color is red
+        LCD.WriteLine("Red");
+        LCD.SetFontColor(RED);
+        LCD.FillRectangle(0, 0, 319, 239);
+        while(TimeNow() < time + 0.5){}
+        light_color = 1;
+    }
+    return(light_color);
 }
 
 int main(void)
 {
     LCD.Clear();
 
-    Sleep(3.0);
-    // LCD.WriteLine("Starting...");
-    // // Wait until light signal is received
-    // while(read_cds_sensor() > 1.0){}
-    // move(3.0);
-    // Sleep(0.5);
-    // turn(NINETY_DEGREE_TURN, LEFT);
-    // Sleep(0.5);
-    // move(0.75);
-    // Sleep(0.5);
-    // turn(NINETY_DEGREE_TURN, RIGHT);
-    // Sleep(0.5);
-    // move(distance_to_time(25));
+    while(read_cds_sensor() > 2.0){}
 
-    // move(distance_to_time(22), REVERSE);
-    // Sleep(0.5);
-    // turn(NINETY_DEGREE_TURN, LEFT);
-    // Sleep(0.5);
-    // move(0.90, REVERSE);
-    // Sleep(0.5);
-    // turn(NINETY_DEGREE_TURN, RIGHT);
-    // Sleep(0.5);
-    // move(3.0, REVERSE);
-
-    // LCD.WriteLine("balls");
-
-    right_motor.SetPercent(10.);
-    right_encoder.ResetCounts();
-    while(right_encoder.Counts() < 3180){
-        if(right_encoder.Counts() % 3180 == 0){
-            LCD.WriteLine("Rotation complete");
-        }
-        LCD.Clear();
-        LCD.WriteLine(right_encoder.Counts());
+    // turn(40.0, RIGHT);
+    move(36);
+    turn(83.0, LEFT);
+    move_failsafe(3, 2.0, REVERSE);
+    move(19.75);
+    turn(83.0, RIGHT);
+    move_to_light();
+    int light_color = read_light_color();
+    move(2.0, REVERSE);
+    turn(83.0, RIGHT);
+    if(light_color == 1){
+        move(5.75);
+        turn(83.0, LEFT);
+        move(6.5);
     }
-    stop_motors();
-    LCD.WriteLine("10 rotations complete");
+    else {
+        move(1.25);
+        turn(83.0, LEFT);
+        move(4.75);
+    }
+
+    move_failsafe(29.5, 5.0, REVERSE);
+    move(1.0);
+    turn(83.0, LEFT);
+    move_failsafe(19.75, 5.0, REVERSE);
+    move(1.0);
+    turn(85.0, RIGHT);
+    move_failsafe(36.0, 6.0, REVERSE);
+
+    // move(16.0);
 
 	return 0;
 }
