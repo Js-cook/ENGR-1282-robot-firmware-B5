@@ -2,6 +2,7 @@
 #include <FEHLCD.h>
 #include <FEHIO.h>
 #include <FEHMotor.h>
+#include <FEHRCS.h>
 
 // ----------- PORT AND MACRO DECLARATIONS -----------
 
@@ -12,7 +13,8 @@
 #define NINETY_DEGREE_TURN 0.5 // Time in seconds required to turn 90 degrees
 #define REVERSE -1 // Value used to represent motion in reverse
 #define COUNTS_PER_REVOLUTION 318 // Number of counts that correspond to a full motor revolution for IGWAN motors 
-#define RADIUS_OF_TURN 4 // Radius of robot turn in inches measured from the middle of the wheel to the center of the chassis 
+#define RADIUS_OF_TURN 4 // Radius of robot turn in inches measured from the middle of the wheel to the center of the chassis
+#define TEAM_ID "B5rhNym2B" // Team identifier used for RCS system 
 
 // Motor ports
 FEHMotor right_motor(FEHMotor::Motor0, 9.0);
@@ -215,42 +217,25 @@ int read_light_color(){
     return(light_color);
 }
 
+
+/*
+    Initializes parameters and settings for the robot. Called once at program start
+    PARAMS: N/A
+    RETURN: N/A
+*/
+void init(){
+    LCD.Clear();
+    RCS.InitializeTouchMenu(TEAM_ID);
+}
+
+
 int main(void)
 {
-    LCD.Clear();
+    init();
 
     while(read_cds_sensor() > 2.0){}
 
-    // turn(40.0, RIGHT);
-    move(36);
-    turn(83.0, LEFT);
-    move_failsafe(3, 2.0, REVERSE);
-    move(19.75);
-    turn(83.0, RIGHT);
-    move_to_light();
-    int light_color = read_light_color();
-    move(2.0, REVERSE);
-    turn(83.0, RIGHT);
-    if(light_color == 1){
-        move(5.75);
-        turn(83.0, LEFT);
-        move(6.5);
-    }
-    else {
-        move(1.25);
-        turn(83.0, LEFT);
-        move(4.75);
-    }
-
-    move_failsafe(29.5, 5.0, REVERSE);
-    move(1.0);
-    turn(83.0, LEFT);
-    move_failsafe(19.75, 5.0, REVERSE);
-    move(1.0);
-    turn(85.0, RIGHT);
-    move_failsafe(36.0, 6.0, REVERSE);
-
-    // move(16.0);
+    // Code goes here
 
 	return 0;
 }
