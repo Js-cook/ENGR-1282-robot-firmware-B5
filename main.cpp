@@ -121,11 +121,12 @@ void turn(float angle, int direction){
     PARAMS:
         float distance - total distance of motion in inches
         int direction - direction of motion, forward by default, but reverse if -1 is specified for direction
+        float speed - motor speed as a percentage
     RETURN: N/A
 */
-void move(float distance, int direction=1){
-    right_motor.SetPercent(40. * direction);
-    left_motor.SetPercent(40. * direction);
+void move(float distance, int direction=1, float speed=40.){
+    right_motor.SetPercent(speed * direction);
+    left_motor.SetPercent(speed * direction);
 
     resetMotorCounts();
 
@@ -136,30 +137,14 @@ void move(float distance, int direction=1){
     Sleep(0.5);
 }
 
-void move_failsafe(float distance, float failsafe_duration, int direction=1){
-    right_motor.SetPercent(40. * direction);
-    left_motor.SetPercent(40. * direction);
+void move_failsafe(float distance, float failsafe_duration, int direction=1, float speed=40.){
+    right_motor.SetPercent(speed * direction);
+    left_motor.SetPercent(speed * direction);
 
     resetMotorCounts();
 
-    // Ideally motor counts should be equal but this might have to be adjusted in the future
-    // int prevCounts = -1;
-    // int sameCounter = 0;
     float time = TimeNow();
-    while((calculate_distance(right_encoder.Counts()) <= distance && calculate_distance(left_encoder.Counts()) <= distance) && TimeNow() < time + failsafe_duration){
-
-        // if(prevCounts == right_encoder.Counts()){
-        //     LCD.WriteLine("Failsafe");
-        //     sameCounter++;
-        //     if(sameCounter > 10){
-        //         break;
-        //     }
-        // }
-
-        // if(right_encoder.Counts() % 5 == 0 && right_encoder.Counts() != 0){
-        //     prevCounts = right_encoder.Counts();
-        // }
-    }
+    while((calculate_distance(right_encoder.Counts()) <= distance && calculate_distance(left_encoder.Counts()) <= distance) && TimeNow() < time + failsafe_duration){}
     stop_motors();
     Sleep(0.5);
 }
@@ -217,6 +202,37 @@ int read_light_color(){
     return(light_color);
 }
 
+/*
+    Navigates to a fuel lever designated by its numerical id. Value of switch_id fetched from GetCorrectLever() from RCS module.
+    PARAMS:
+        switch_id - int value representing the correct lever
+    RETURN: N/A
+*/
+void navigate_to_switch(int switch_id){
+    switch(switch_id){
+        case 0:
+            LCD.WriteLine("Left");
+            move(20.25);
+            turn(77., LEFT);
+            move(6.25, 1, 65.);
+            break;
+        case 1:
+            LCD.WriteLine("Middle");
+            move(24.0);
+            turn(77., LEFT);
+            move(6.25, 1, 65.);
+            break;
+        case 2:
+            LCD.WriteLine("Right");
+            move(28.);
+            turn(77., LEFT);
+            move(6.25, 1, 65.);
+            break;
+        default:
+            LCD.WriteLine("I no no wanna :(");
+            break;
+    }
+}
 
 /*
     Initializes parameters and settings for the robot. Called once at program start
@@ -228,14 +244,22 @@ void init(){
     RCS.InitializeTouchMenu(TEAM_ID);
 }
 
-
 int main(void)
 {
     init();
 
     while(read_cds_sensor() > 2.0){}
 
-    // Code goes here
+    move(9.0);
+    turn(80.0, LEFT);
+    move_failsafe(4., 3., REVERSE);
+    navigate_to_switch(RCS.GetCorrectLever());
+
+    LCD.WriteLine("No 75% :(");
+    move(2.0, REVERSE);
+    Sleep(5.0);
+    turn(5.0, LEFT);
+    move(2.0, 1, 65.);
 
 	return 0;
 }
