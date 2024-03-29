@@ -3,6 +3,7 @@
 #include <FEHIO.h>
 #include <FEHMotor.h>
 #include <FEHRCS.h>
+#include <FEHServo.h>
 
 // ----------- PORT AND MACRO DECLARATIONS -----------
 
@@ -12,13 +13,20 @@
 #define RIGHT 1 // Value used to represent a right turn in the turn() function
 #define NINETY_DEGREE_TURN 0.5 // Time in seconds required to turn 90 degrees
 #define REVERSE -1 // Value used to represent motion in reverse
+#define FORWARD 1 // Value used to represent motion forward
 #define COUNTS_PER_REVOLUTION 318 // Number of counts that correspond to a full motor revolution for IGWAN motors 
 #define RADIUS_OF_TURN 4 // Radius of robot turn in inches measured from the middle of the wheel to the center of the chassis
 #define TEAM_ID "B5rhNym2B" // Team identifier used for RCS system 
+// UPDATE THESE WHEN READY
+#define SERVO_MIN 0 // Minimum compensation value for the servo motor, run TouchCalibrate() to obtain
+#define SERVO_MAX 999 // Maximum compensation value for the servo motor, run TouchCalibrate() to obtain
 
 // Motor ports
 FEHMotor right_motor(FEHMotor::Motor0, 9.0);
 FEHMotor left_motor(FEHMotor::Motor2, 9.0);
+
+// Servo ports
+FEHServo servo_arm(FEHServo::Servo2); // replace with actual servo motor port
 
 // Analog inputs
 AnalogInputPin cds_cell(FEHIO::P1_0);
@@ -235,6 +243,18 @@ void navigate_to_switch(int switch_id){
 }
 
 /*
+    Adjusts the position of the servo motor to the input angle.
+    PARAMS:
+        angle - float value representing the desired angle of the servo motor
+    RETURN: N/A
+*/
+void move_servo(float angle){
+    servo_arm.SetDegree(angle);
+}
+
+// void reset_servo()
+
+/*
     Initializes parameters and settings for the robot. Called once at program start
     PARAMS: N/A
     RETURN: N/A
@@ -242,6 +262,9 @@ void navigate_to_switch(int switch_id){
 void init(){
     LCD.Clear();
     RCS.InitializeTouchMenu(TEAM_ID);
+
+    servo_arm.SetMin(SERVO_MIN);
+    servo_arm.SetMax(SERVO_MAX);
 }
 
 int main(void)
@@ -250,16 +273,18 @@ int main(void)
 
     while(read_cds_sensor() > 2.0){}
 
-    move(9.0);
-    turn(80.0, LEFT);
-    move_failsafe(4., 3., REVERSE);
-    navigate_to_switch(RCS.GetCorrectLever());
-
-    LCD.WriteLine("No 75% :(");
-    move(2.0, REVERSE);
-    Sleep(5.0);
-    turn(5.0, LEFT);
-    move(2.0, 1, 65.);
+    move(36., FORWARD);
+    turn(87., LEFT);
+    move(4.75, FORWARD);
+    turn(80., LEFT);
+    move_failsafe(9999., 0.5, REVERSE);
+    turn(3., LEFT);
+    move_failsafe(9999., 1.5, REVERSE);
+    move_failsafe(9999., 2.5, FORWARD);
+    // left_motor.SetPercent(-40.);
+    // right_motor.SetPercent(-40.);
+    // move(11., REVERSE, 75.);
+    // move(11., FORWARD, 75.);
 
 	return 0;
 }
