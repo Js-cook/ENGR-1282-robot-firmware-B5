@@ -17,16 +17,15 @@
 #define COUNTS_PER_REVOLUTION 318 // Number of counts that correspond to a full motor revolution for IGWAN motors 
 #define RADIUS_OF_TURN 4 // Radius of robot turn in inches measured from the middle of the wheel to the center of the chassis
 #define TEAM_ID "B5rhNym2B" // Team identifier used for RCS system 
-// UPDATE THESE WHEN READY
-#define SERVO_MIN 0 // Minimum compensation value for the servo motor, run TouchCalibrate() to obtain
-#define SERVO_MAX 999 // Maximum compensation value for the servo motor, run TouchCalibrate() to obtain
+#define SERVO_MIN 1291 // Minimum compensation value for the servo motor, run TouchCalibrate() to obtain
+#define SERVO_MAX 2313 // Maximum compensation value for the servo motor, run TouchCalibrate() to obtain
 
 // Motor ports
 FEHMotor right_motor(FEHMotor::Motor0, 9.0);
 FEHMotor left_motor(FEHMotor::Motor2, 9.0);
 
 // Servo ports
-FEHServo servo_arm(FEHServo::Servo2); // replace with actual servo motor port
+FEHServo servo_arm(FEHServo::Servo0);
 
 // Analog inputs
 AnalogInputPin cds_cell(FEHIO::P1_0);
@@ -117,7 +116,6 @@ void turn(float angle, int direction){
     resetMotorCounts();
 
     float turn_radius_radians = deg_to_rads(angle);
-    // derived from arc length formula double check this
     while(calculate_distance(right_encoder.Counts()) <= (RADIUS_OF_TURN * turn_radius_radians)){}
     stop_motors();
     Sleep(0.5);
@@ -138,8 +136,6 @@ void move(float distance, int direction=1, float speed=40.){
 
     resetMotorCounts();
 
-    // Ideally motor counts should be equal but this might have to be adjusted in the future
-    // int prevCounts = -1;
     while(calculate_distance(right_encoder.Counts()) <= distance && calculate_distance(left_encoder.Counts()) <= distance){}
     stop_motors();
     Sleep(0.5);
@@ -252,7 +248,6 @@ void move_servo(float angle){
     servo_arm.SetDegree(angle);
 }
 
-// void reset_servo()
 
 /*
     Initializes parameters and settings for the robot. Called once at program start
@@ -269,22 +264,15 @@ void init(){
 
 int main(void)
 {
+
     init();
 
     while(read_cds_sensor() > 2.0){}
+    move(9999., FORWARD);
+    move_servo(180);
+    Sleep(0.5);
+    move_servo(0);
 
-    move(36., FORWARD);
-    turn(87., LEFT);
-    move(4.75, FORWARD);
-    turn(80., LEFT);
-    move_failsafe(9999., 0.5, REVERSE);
-    turn(3., LEFT);
-    move_failsafe(9999., 1.5, REVERSE);
-    move_failsafe(9999., 2.5, FORWARD);
-    // left_motor.SetPercent(-40.);
-    // right_motor.SetPercent(-40.);
-    // move(11., REVERSE, 75.);
-    // move(11., FORWARD, 75.);
 
 	return 0;
 }
