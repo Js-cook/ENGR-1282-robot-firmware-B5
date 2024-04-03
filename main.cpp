@@ -243,6 +243,7 @@ void navigate_to_switch(int switch_id){
     RETURN: N/A
 */
 void move_servo(float angle){
+    // LEFT MOST PORT WITH BLACK WIRE ON TOP
     servo_arm.SetDegree(angle);
 }
 
@@ -266,10 +267,28 @@ int main(void)
     init();
 
     while(read_cds_sensor() > 2.0){}
-    move(9999., FORWARD);
-    move_servo(180);
-    Sleep(0.5);
-    move_servo(0);
+    // move(9999., FORWARD);
+    // move_servo(180);
+    // Sleep(0.5);
+    // move_servo(0);
+
+    move_failsafe(3., 0.75, REVERSE);
+    move(1., FORWARD);
+    turn(42., RIGHT);
+    move(38., FORWARD);
+    turn(87., LEFT);
+    move(13.25, FORWARD);
+    turn(87., RIGHT);
+    move_servo(90.);
+    Sleep(0.75);
+    move_servo(180.);
+    turn(87., LEFT);
+    move(13.25, REVERSE);
+    turn(87., RIGHT);
+    move(36., REVERSE, 80.);
+    turn(42., LEFT);
+    move_failsafe(3., 0.8, REVERSE);
+    // move(3., FORWARD);
 
 	return 0;
 }
