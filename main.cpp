@@ -8,10 +8,8 @@
 // ----------- PORT AND MACRO DECLARATIONS -----------
 
 // Macros
-#define HALF_SPEED_VELOCITY 11 // Approximate velocity of the robot in inches per second (temporary until shaft encoding implemented)
 #define LEFT 0 // Value used to represent a left turn in the turn() function
 #define RIGHT 1 // Value used to represent a right turn in the turn() function
-#define NINETY_DEGREE_TURN 0.5 // Time in seconds required to turn 90 degrees
 #define REVERSE -1 // Value used to represent motion in reverse
 #define FORWARD 1 // Value used to represent motion forward
 #define COUNTS_PER_REVOLUTION 318 // Number of counts that correspond to a full motor revolution for IGWAN motors 
@@ -272,7 +270,6 @@ int main(void)
     move_servo(180);
     Sleep(0.5);
     move_servo(0);
-
 
 	return 0;
 }
