@@ -185,7 +185,7 @@ int read_light_color(){
     LCD.Clear();
 
     time = TimeNow();
-    if(voltage > 1.35){
+    if(voltage > 1.5){
         // color is blue
         LCD.WriteLine("Blue");
         LCD.SetFontColor(BLUE);
@@ -259,6 +259,7 @@ void init(){
 
     servo_arm.SetMin(SERVO_MIN);
     servo_arm.SetMax(SERVO_MAX);
+    LCD.WriteLine("FINN FOR THE LOVE OF GOD PUT THE LUGGAGE ON PLEASE EVERY TIME YOU FORGET SHAVES OFF 15 MINS OF MY LIFE");
 }
 
 int main(void)
@@ -267,28 +268,91 @@ int main(void)
     init();
 
     while(read_cds_sensor() > 2.0){}
-    // move(9999., FORWARD);
-    // move_servo(180);
-    // Sleep(0.5);
-    // move_servo(0);
-
+    
+    /* ---------- LUGGAGE DROP ---------- */
     move_failsafe(3., 0.75, REVERSE);
     move(1., FORWARD);
-    turn(42., RIGHT);
-    move(38., FORWARD);
+    turn(40., RIGHT);
+    move(36., FORWARD);
     turn(87., LEFT);
-    move(13.25, FORWARD);
-    turn(87., RIGHT);
-    move_servo(90.);
-    Sleep(0.75);
-    move_servo(180.);
-    turn(87., LEFT);
-    move(13.25, REVERSE);
-    turn(87., RIGHT);
-    move(36., REVERSE, 80.);
-    turn(42., LEFT);
-    move_failsafe(3., 0.8, REVERSE);
-    // move(3., FORWARD);
+    move(12.25, FORWARD);
+    turn(85., RIGHT);
 
+    for(float i = 180.; i >= 110.; i -= 10){
+        move_servo(i);
+        Sleep(0.1);    
+    }
+    move_servo(180.);
+    Sleep(0.2);
+    // move_failsafe(2.75, 1.5, REVERSE);
+    move(3.5, FORWARD);
+    
+    /* ---------- LIGHT READING ---------- */
+    
+    turn(87., LEFT);
+    move_failsafe(999., 2., FORWARD);
+    move(8., REVERSE);
+    turn(83., RIGHT);
+    move_to_light(FORWARD);
+    int light_color = read_light_color();
+    move(2.0, REVERSE);
+    turn(80.0, RIGHT);
+    
+    /* ---------- BOARDING PASS BUTTONS ---------- */
+    
+    // RED
+    if(light_color == 1){
+        move(6., FORWARD);
+        turn(83.0, LEFT);
+        move(6.5, FORWARD, 55.);
+        move(7., REVERSE);
+        turn(83., LEFT);
+        move(7., FORWARD);
+    }
+    // BLUE
+    else {
+        move(9., FORWARD);
+        turn(85.0, LEFT);
+        move(5.25, FORWARD, 55.);
+        move(7., REVERSE);
+        turn(83., LEFT);
+        move(11., FORWARD);
+    }
+
+    /* ---------- PASSPORT STAMP ---------- */
+    move_servo(0.);
+    move(6.25, REVERSE);
+    Sleep(1.5);
+    move_servo(155.);
+    turn(25., LEFT);
+
+    move_failsafe(999., 2., FORWARD);
+    move_servo(180.);
+    move(5.0, REVERSE);
+    turn(80., RIGHT);
+    int correctLever = RCS.GetCorrectLever();
+    move(24., REVERSE);
+    if(correctLever == 0){
+        //  LEFT - A
+        turn(83., LEFT);
+        move(7, REVERSE);
+        turn(83., RIGHT);
+    }
+    else if(correctLever == 1){
+        //  MIDDLE - A1
+        turn(83., LEFT);
+        move(3.5, REVERSE);
+        turn(83., RIGHT);
+    }
+    // ASSUMES RIGHTMOST LEVER
+    move(3., REVERSE);
+    move_servo(60.);
+    move(3., FORWARD);
+    move_servo(0.);
+    Sleep(5.);
+    move(3., REVERSE);
+    move_servo(45.);
+
+    /* ---------- FUEL LEVERS ---------- */
 	return 0;
 }
