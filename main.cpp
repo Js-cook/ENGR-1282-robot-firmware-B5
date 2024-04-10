@@ -291,7 +291,7 @@ int main(void)
     
     turn(87., LEFT);
     move_failsafe(999., 2., FORWARD);
-    move(8., REVERSE);
+    move(8.75, REVERSE);
     turn(83., RIGHT);
     move_to_light(FORWARD);
     int light_color = read_light_color();
@@ -311,48 +311,62 @@ int main(void)
     }
     // BLUE
     else {
-        move(9., FORWARD);
+        move(9.25, FORWARD);
         turn(85.0, LEFT);
         move(5.25, FORWARD, 55.);
         move(7., REVERSE);
         turn(83., LEFT);
-        move(11., FORWARD);
+        move(10.5, FORWARD);
     }
 
     /* ---------- PASSPORT STAMP ---------- */
     move_servo(0.);
     move(6.25, REVERSE);
     Sleep(1.5);
-    move_servo(155.);
-    turn(25., LEFT);
+    move_servo(130.);
+    turn(35., LEFT);
 
-    move_failsafe(999., 2., FORWARD);
+    /* ---------- FUEL LEVERS ---------- */
+    move_failsafe(999., 2.75, FORWARD);
     move_servo(180.);
     move(5.0, REVERSE);
-    turn(80., RIGHT);
+    turn(81.5, RIGHT);
     int correctLever = RCS.GetCorrectLever();
     move(24., REVERSE);
     if(correctLever == 0){
         //  LEFT - A
         turn(83., LEFT);
-        move(7, REVERSE);
+        move(6.5, REVERSE);
         turn(83., RIGHT);
     }
     else if(correctLever == 1){
         //  MIDDLE - A1
         turn(83., LEFT);
-        move(3.5, REVERSE);
+        move(3, REVERSE);
         turn(83., RIGHT);
     }
-    // ASSUMES RIGHTMOST LEVER
-    move(3., REVERSE);
-    move_servo(60.);
-    move(3., FORWARD);
+    else{
+        //  RIGHT - B
+        // move(2., REVERSE);
+        move(1., FORWARD);
+    }
+    move_servo(55.);
+    Sleep(.3);
+    move(2., FORWARD);
     move_servo(0.);
     Sleep(5.);
-    move(3., REVERSE);
-    move_servo(45.);
+    move(1.5, REVERSE);
+    move_servo(50.);
 
-    /* ---------- FUEL LEVERS ---------- */
+    /* ---------- FINAL LEVER ---------- */
+    // move(.5, FORWARD);
+    turn(83., RIGHT);
+    move_servo(180.);
+    move_failsafe(999., 2., FORWARD);
+    move(2., REVERSE);
+    turn(83., RIGHT);
+    move(13., FORWARD);
+    turn(45., LEFT);
+
 	return 0;
 }
