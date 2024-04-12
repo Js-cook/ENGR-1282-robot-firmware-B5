@@ -273,11 +273,13 @@ int main(void)
     move_failsafe(3., 0.75, REVERSE);
     move(1., FORWARD);
     turn(40., RIGHT);
-    move(36., FORWARD);
+    move(18., FORWARD);
+    turn(2.5, LEFT);
+    move(19.,FORWARD);
     turn(87., LEFT);
     move(12.25, FORWARD);
     turn(85., RIGHT);
-
+    move(1., REVERSE);
     for(float i = 180.; i >= 110.; i -= 10){
         move_servo(i);
         Sleep(0.1);    
@@ -285,7 +287,7 @@ int main(void)
     move_servo(180.);
     Sleep(0.2);
     // move_failsafe(2.75, 1.5, REVERSE);
-    move(3.5, FORWARD);
+    move(4.5, FORWARD);
     
     /* ---------- LIGHT READING ---------- */
     
@@ -302,7 +304,7 @@ int main(void)
     
     // RED
     if(light_color == 1){
-        move(6., FORWARD);
+        move(6.25, FORWARD);
         turn(83.0, LEFT);
         move(6.5, FORWARD, 55.);
         move(7., REVERSE);
@@ -313,18 +315,19 @@ int main(void)
     else {
         move(9.25, FORWARD);
         turn(85.0, LEFT);
-        move(5.25, FORWARD, 55.);
+        move(5.5, FORWARD, 55.);
         move(7., REVERSE);
-        turn(83., LEFT);
-        move(10.5, FORWARD);
+        turn(81., LEFT);
+        move(11.5, FORWARD);
     }
 
     /* ---------- PASSPORT STAMP ---------- */
     move_servo(0.);
     move(6.25, REVERSE);
     Sleep(1.5);
-    move_servo(130.);
-    turn(35., LEFT);
+    move_servo(135.);
+    turn(40., LEFT);
+    turn(15., RIGHT);
 
     /* ---------- FUEL LEVERS ---------- */
     move_failsafe(999., 2.75, FORWARD);
@@ -332,7 +335,7 @@ int main(void)
     move(5.0, REVERSE);
     turn(81.5, RIGHT);
     int correctLever = RCS.GetCorrectLever();
-    move(24., REVERSE);
+    move(28.5, REVERSE);
     if(correctLever == 0){
         //  LEFT - A
         turn(83., LEFT);
@@ -342,31 +345,35 @@ int main(void)
     else if(correctLever == 1){
         //  MIDDLE - A1
         turn(83., LEFT);
-        move(3, REVERSE);
+        move(3 REVERSE);
         turn(83., RIGHT);
     }
     else{
         //  RIGHT - B
         // move(2., REVERSE);
-        move(1., FORWARD);
+        // move(1., FORWARD);
     }
-    move_servo(55.);
-    Sleep(.3);
-    move(2., FORWARD);
+    move_servo(50.);
+    Sleep(.2);
+    move(3.5, FORWARD);
     move_servo(0.);
     Sleep(5.);
-    move(1.5, REVERSE);
-    move_servo(50.);
+    move(2.75, REVERSE);
+    move_servo(55.);
+    Sleep(.3);
 
     /* ---------- FINAL LEVER ---------- */
     // move(.5, FORWARD);
-    turn(83., RIGHT);
+    move(2., FORWARD);
     move_servo(180.);
-    move_failsafe(999., 2., FORWARD);
-    move(2., REVERSE);
+    move(4., REVERSE);
     turn(83., RIGHT);
-    move(13., FORWARD);
+    move_failsafe(999., 2.5, FORWARD);
+    move(3.5, REVERSE);
+    turn(83., RIGHT);
+    move(16., FORWARD, 45.);
     turn(45., LEFT);
+    move(4., FORWARD, 60.);
 
-	return 0;
+    return 0;
 }
