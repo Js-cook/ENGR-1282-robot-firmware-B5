@@ -89,7 +89,7 @@ void stop_motors(){
     PARAMS: N/A
     RETURN: N/A
 */
-void resetMotorCounts(){
+void reset_motor_counts(){
     right_encoder.ResetCounts();
     left_encoder.ResetCounts();
 }
@@ -111,7 +111,7 @@ void turn(float angle, int direction){
         left_motor.SetPercent(40.);
     }
 
-    resetMotorCounts();
+    reset_motor_counts();
 
     float turn_radius_radians = deg_to_rads(angle);
     while(calculate_distance(right_encoder.Counts()) <= (RADIUS_OF_TURN * turn_radius_radians)){}
@@ -132,7 +132,7 @@ void move(float distance, int direction=1, float speed=40.){
     right_motor.SetPercent(speed * direction);
     left_motor.SetPercent(speed * direction);
 
-    resetMotorCounts();
+    reset_motor_counts();
 
     while(calculate_distance(right_encoder.Counts()) <= distance && calculate_distance(left_encoder.Counts()) <= distance){}
     stop_motors();
@@ -143,7 +143,7 @@ void move_failsafe(float distance, float failsafe_duration, int direction=1, flo
     right_motor.SetPercent(speed * direction);
     left_motor.SetPercent(speed * direction);
 
-    resetMotorCounts();
+    reset_motor_counts();
 
     float time = TimeNow();
     while((calculate_distance(right_encoder.Counts()) <= distance && calculate_distance(left_encoder.Counts()) <= distance) && TimeNow() < time + failsafe_duration){}
@@ -161,7 +161,7 @@ void move_to_light(int direction=1){
     right_motor.SetPercent(40. * direction);
     left_motor.SetPercent(40. * direction);
 
-    resetMotorCounts();
+    reset_motor_counts();
 
     while(read_cds_sensor() > 2.2){}
     stop_motors();
@@ -259,7 +259,6 @@ void init(){
 
     servo_arm.SetMin(SERVO_MIN);
     servo_arm.SetMax(SERVO_MAX);
-    LCD.WriteLine("FINN FOR THE LOVE OF GOD PUT THE LUGGAGE ON PLEASE EVERY TIME YOU FORGET SHAVES OFF 15 MINS OF MY LIFE");
 }
 
 int main(void)
@@ -286,7 +285,6 @@ int main(void)
     }
     move_servo(180.);
     Sleep(0.2);
-    // move_failsafe(2.75, 1.5, REVERSE);
     move(4.5, FORWARD);
     
     /* ---------- LIGHT READING ---------- */
@@ -350,8 +348,6 @@ int main(void)
     }
     else{
         //  RIGHT - B
-        // move(2., REVERSE);
-        // move(1., FORWARD);
     }
     move_servo(50.);
     Sleep(.2);
@@ -362,8 +358,7 @@ int main(void)
     move_servo(55.);
     Sleep(.3);
 
-    /* ---------- FINAL LEVER ---------- */
-    // move(.5, FORWARD);
+    /* ---------- FINAL BUTTON ---------- */
     move(2., FORWARD);
     move_servo(180.);
     move(4., REVERSE);
