@@ -17,6 +17,7 @@
 #define TEAM_ID "B5rhNym2B" // Team identifier used for RCS system 
 #define SERVO_MIN 1291 // Minimum compensation value for the servo motor, run TouchCalibrate() to obtain
 #define SERVO_MAX 2313 // Maximum compensation value for the servo motor, run TouchCalibrate() to obtain
+#define COLOR_THRESHOLD 1.7 // Threshold used for differentiating between red and blue lights, > 1.7 corresponds to blue and < 1.7 corresponds to red
 
 // Motor ports
 FEHMotor right_motor(FEHMotor::Motor0, 9.0);
@@ -185,7 +186,7 @@ int read_light_color(){
     LCD.Clear();
 
     time = TimeNow();
-    if(voltage > 1.5){
+    if(voltage > COLOR_THRESHOLD){
         // color is blue
         LCD.WriteLine("Blue");
         LCD.SetFontColor(BLUE);
@@ -237,6 +238,27 @@ void navigate_to_switch(int switch_id){
 }
 
 /*
+    Continuously outputs the voltage readings of the CdS cell for calibration purposes
+    PARAMS: N/A
+    RETURN: N/A
+*/
+void calibrate_cds(){
+    // adjust the COLOR_THRESHOLD constant for calibration
+    while(true){
+        float reading = read_cds_sensor();
+        LCD.WriteLine(reading);
+        if(reading > COLOR_THRESHOLD){
+            LCD.WriteLine("BLUE BASED ON CURRENT THRESHOLD");
+        }
+        else{
+            LCD.WriteLine("RED BASED ON CURRENT THRESHOLD");
+        }
+        Sleep(0.5);
+        LCD.Clear();
+    }
+}
+
+/*
     Adjusts the position of the servo motor to the input angle.
     PARAMS:
         angle - float value representing the desired angle of the servo motor
@@ -263,6 +285,9 @@ void init(){
 
 int main(void)
 {
+
+    // ---------- UNCOMMENT THIS TO CALIBRATE ----------
+    // calibrate_cds();
 
     init();
 
@@ -307,11 +332,11 @@ int main(void)
         move(6.5, FORWARD, 55.);
         move(7., REVERSE);
         turn(83., LEFT);
-        move(7., FORWARD);
+        move(7.5, FORWARD);
     }
     // BLUE
     else {
-        move(9.25, FORWARD);
+        move(9.0, FORWARD);
         turn(85.0, LEFT);
         move(5.5, FORWARD, 55.);
         move(7., REVERSE);
@@ -333,6 +358,7 @@ int main(void)
     move(5.0, REVERSE);
     turn(81.5, RIGHT);
     int correctLever = RCS.GetCorrectLever();
+    // int correctLever = 2;
     move(28.5, REVERSE);
     if(correctLever == 0){
         //  LEFT - A
@@ -343,19 +369,20 @@ int main(void)
     else if(correctLever == 1){
         //  MIDDLE - A1
         turn(83., LEFT);
-        move(3 REVERSE);
+        move(3, REVERSE);
         turn(83., RIGHT);
+        move(1., FORWARD);
     }
     else{
         //  RIGHT - B
     }
-    move_servo(50.);
+    move_servo(45.);
     Sleep(.2);
     move(3.5, FORWARD);
     move_servo(0.);
     Sleep(5.);
     move(2.75, REVERSE);
-    move_servo(55.);
+    move_servo(60.);
     Sleep(.3);
 
     /* ---------- FINAL BUTTON ---------- */
